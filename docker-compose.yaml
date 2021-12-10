@@ -1,0 +1,64 @@
+version: '1'
+
+services:
+  dev:
+    container_name: 'buyonic-backend-dev'
+    image: 'buyonic-backend-dev:1.0.0'
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PW="buyonic-rocks"
+    depends_on:
+      - postgres
+    links:
+      - postgres:postgres
+    build:
+      context: .
+      target: development
+      dockerfile: ./DockerFile
+    command: npm run start:debug
+    ports:
+      - 3000:3000
+      - 9229:9229
+    networks:
+      - buyonic-network
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+  prod:
+    container_name: 'buyonic-backend-prod'
+    image: 'buyonic-backend-prod:1.0.0'
+    environment:
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DB_PW="buyonic-rocks"
+    depends_on:
+      - postgres
+    links:
+      - postgres:postgres
+    build:
+      context: .
+      target: production
+      dockerfile: ./DockerFile
+    command: npm run start:prod
+
+    ports:
+      - 3000:3000
+      - 9229:9229
+    networks:
+      - buyonic-network
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    restart: unless-stopped
+  postgres:
+    image: postgres:alpine
+    restart: always
+    environment:
+      - DB_USER=postgres
+      - POSTGRES_PASSWORD=buyonic-rocks
+networks:
+  buyonic-network:
